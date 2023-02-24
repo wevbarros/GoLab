@@ -5,34 +5,33 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math/rand"
 	"net"
+	"time"
 )
 
 func main() {
 
-	var num1 int32
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+	num1 := r.Int31n(100)
+
 	buf := new(bytes.Buffer)
 
-	fmt.Scanln(&num1)
+	fmt.Printf("I'm the client, the generate number is: %d \n", num1)
 
-	fmt.Printf("I'm the client, your input was the number: %d", num1)
-
-	//escribir el numero a b, el buffer
 	err := binary.Write(buf, binary.LittleEndian, num1)
 
-	//Llama al server
 	conn, err := net.Dial("tcp", "localhost:9000")
 	if err != nil {
 		panic(err)
 	}
 
-	//Escribe buffer a la conexion
 	buf.WriteTo(conn)
 
-	//Cierra la conexión
 	defer conn.Close()
 
-	//Lee la conexión  y la imprime
 	bs, _ := io.ReadAll(conn)
 	fmt.Println(string(bs))
+
 }
